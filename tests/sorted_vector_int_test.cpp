@@ -9,7 +9,19 @@
 using ::testing::_;
 using ::testing::ElementsAre;
 
-TEST(SortedVectorOfInts, ElementAreSortedAfterInsertion)
+TEST(SortedVectorOfIntsWithDuplicates, ElementAreSortedAfterInsertion)
+{
+    sorted_vector<int, false> v;
+
+    v.insert(4);
+    v.insert(3);
+    v.insert(5);
+    v.insert(3);
+
+    ASSERT_THAT(v, ElementsAre(3, 3, 4, 5));
+}
+
+TEST(SortedVectorOfIntsWithoutDuplicates, ElementAreSortedAfterInsertion)
 {
     sorted_vector<int> v;
 
@@ -18,7 +30,7 @@ TEST(SortedVectorOfInts, ElementAreSortedAfterInsertion)
     v.insert(5);
     v.insert(3);
 
-    ASSERT_THAT(v, ElementsAre(3, 3, 4, 5));
+    ASSERT_THAT(v, ElementsAre(3, 4, 5));
 }
 
 //{

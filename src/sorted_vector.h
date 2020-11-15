@@ -8,17 +8,17 @@
 #include <vector>
 #include <algorithm>
 
-template <typename T, typename Less = std::less<T>>
+template <typename T, bool RemoveDuplicates = true, typename Less = std::less<T>>
 class sorted_vector
 {
 public:
 
-    typedef typename std::vector<T>::iterator               iterator;
-    typedef typename std::vector<T>::const_iterator         const_iterator;
-    typedef typename std::vector<T>::reverse_iterator       reverse_iterator;
-    typedef typename std::vector<T>::const_reverse_iterator	const_reverse_iterator;
-    typedef typename std::vector<T>::size_type              size_type;
-    typedef typename std::vector<T>::value_type             value_type;
+    typedef typename std::vector<T>::iterator                   iterator;
+    typedef typename std::vector<T>::const_iterator             const_iterator;
+    typedef typename std::vector<T>::reverse_iterator           reverse_iterator;
+    typedef typename std::vector<T>::const_reverse_iterator	    const_reverse_iterator;
+    typedef typename std::vector<T>::size_type                  size_type;
+    typedef typename std::vector<T>::value_type                 value_type;
 
     virtual ~sorted_vector() = default;
 
@@ -38,7 +38,8 @@ public:
     sorted_vector(iterator first, iterator last)
     : vec_(first, last)
     {
-        erase_duplicates_();
+        if(RemoveDuplicates) { erase_duplicates_and_sort_(); }
+        else { sort_(); }
     }
 
     /**
@@ -94,14 +95,14 @@ public:
 
     void insert(T & el)
     {
-        if(contains(el)) { return; }
+        if(RemoveDuplicates && contains(el)) { return; }
         vec_.push_back(el);
         sort_();
     }
 
     void insert(T && el)
     {
-        if(contains(el)) { return; }
+        if(RemoveDuplicates && contains(el)) { return; }
         vec_.emplace_back(el);
         sort_();
     }
@@ -112,7 +113,8 @@ public:
                 vec_.end(),
                 first, last
                 );
-        erase_duplicates_();
+        if(RemoveDuplicates) { erase_duplicates_and_sort_(); }
+        else { sort_(); }
     }
 
     /**
@@ -122,9 +124,9 @@ public:
      *  This function will insert a copy of the given rvalue of @a el.
      *  Vector will be sorted after operation finishes.
      */
-    void emplace_back(T && el)
+    void emplace_back(value_type && el)
     {
-        if(contains(el)) { return; }
+        if(RemoveDuplicates && contains(el)) { return; }
         vec_.emplace_back(el);
         sort_();
     }
@@ -134,7 +136,7 @@ public:
      *  @param el value of the element to search for
      *  Return `true` if sorted vector contains an element @a el, otherwise `false`.
      */
-    bool contains(const T & el) const
+    bool contains(const value_type & el) const
     {
         return std::binary_search(
                 vec_.cbegin(), vec_.cend(),
@@ -252,7 +254,7 @@ public:
         return vec_.crend();
     }
 
-    iterator find(const T & el)
+    iterator find(const value_type & el)
     {
         return std::lower_bound(
                 vec_.begin(), vec_.end(),
@@ -274,7 +276,7 @@ public:
         return vec_.erase(itr);
     }
 
-    size_type erase(const T & el)
+    size_type erase(const value_type & el)
     {
         auto it = find(el);
         if(it != vec_.end()) {
@@ -301,7 +303,7 @@ public:
         vec_.shrink_to_fit();
     }
 
-    const T* data() const noexcept
+    const value_type* data() const noexcept
     {
         return vec_.data();
     }
@@ -313,7 +315,7 @@ public:
 
     struct Equal
     {
-        bool operator()(const T & el_lhs, const T & el_rhs) const
+        bool operator()(const value_type & el_lhs, const T & el_rhs) const
         {
             return !Less()(el_lhs, el_rhs) && !Less()(el_rhs, el_lhs);
         }
@@ -326,7 +328,7 @@ private:
         std::sort(vec_.begin(), vec_.end(), Less());
     }
 
-    void erase_duplicates_()
+    void erase_duplicates_and_sort_()
     {
         sort_();
 
@@ -339,18 +341,18 @@ private:
     std::vector<T> vec_;
 };
 
-template <typename T, typename Compare = std::less<T>>
-bool operator==(const sorted_vector<T, Compare> & lhs, const sorted_vector<T, Compare> & rhs)
+template <typename T, bool SetLike = true, typename Compare = std::less<T>>
+bool operator==(const sorted_vector<T, SetLike, Compare> & lhs, const sorted_vector<T, SetLike, Compare> & rhs)
 {
     return std::equal(
             std::cbegin(lhs), std::cend(lhs),
             std::cbegin(rhs), std::cend(rhs),
-            typename sorted_vector<T, Compare>::Equal()
+            typename sorted_vector<T, SetLike, Compare>::Equal()
     );
 }
 
-template <typename T, typename Compare = std::less<T>>
-bool operator!=(const sorted_vector<T, Compare> & lhs, const sorted_vector<T, Compare> & rhs) {
+template <typename T, bool SetLike = true, typename Compare = std::less<T>>
+bool operator!=(const sorted_vector<T, SetLike, Compare> & lhs, const sorted_vector<T, SetLike, Compare> & rhs) {
     return !(lhs == rhs);
 }
 
