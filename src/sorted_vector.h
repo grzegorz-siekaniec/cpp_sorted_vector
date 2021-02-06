@@ -38,8 +38,7 @@ public:
     sorted_vector(iterator first, iterator last)
     : vec_(first, last)
     {
-        if(RemoveDuplicates) { erase_duplicates_and_sort_(); }
-        else { sort_(); }
+        initialize_();
     }
 
     /**
@@ -77,7 +76,9 @@ public:
      */
     sorted_vector(std::initializer_list<T> l)
     : vec_(l)
-    {}
+    {
+        initialize_();
+    }
 
     sorted_vector& operator=(const sorted_vector & other) = default;
 
@@ -113,8 +114,7 @@ public:
                 vec_.end(),
                 first, last
                 );
-        if(RemoveDuplicates) { erase_duplicates_and_sort_(); }
-        else { sort_(); }
+        initialize_();
     }
 
     /**
@@ -323,6 +323,12 @@ public:
 
 private:
 
+    void initialize_()
+    {
+        if(RemoveDuplicates) { erase_duplicates_and_sort_(); }
+        else { sort_(); }
+    }
+
     void sort_()
     {
         std::sort(vec_.begin(), vec_.end(), Less());
@@ -341,18 +347,18 @@ private:
     std::vector<T> vec_;
 };
 
-template <typename T, bool SetLike = true, typename Compare = std::less<T>>
-bool operator==(const sorted_vector<T, SetLike, Compare> & lhs, const sorted_vector<T, SetLike, Compare> & rhs)
+template <typename T, bool RemoveDuplicates = true, typename Compare = std::less<T>>
+bool operator==(const sorted_vector<T, RemoveDuplicates, Compare> & lhs, const sorted_vector<T, RemoveDuplicates, Compare> & rhs)
 {
     return std::equal(
             std::cbegin(lhs), std::cend(lhs),
             std::cbegin(rhs), std::cend(rhs),
-            typename sorted_vector<T, SetLike, Compare>::Equal()
+            typename sorted_vector<T, RemoveDuplicates, Compare>::Equal()
     );
 }
 
-template <typename T, bool SetLike = true, typename Compare = std::less<T>>
-bool operator!=(const sorted_vector<T, SetLike, Compare> & lhs, const sorted_vector<T, SetLike, Compare> & rhs) {
+template <typename T, bool RemoveDuplicates = true, typename Compare = std::less<T>>
+bool operator!=(const sorted_vector<T, RemoveDuplicates, Compare> & lhs, const sorted_vector<T, RemoveDuplicates, Compare> & rhs) {
     return !(lhs == rhs);
 }
 
