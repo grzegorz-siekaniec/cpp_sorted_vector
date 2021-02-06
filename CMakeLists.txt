@@ -36,7 +36,9 @@ target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
 add_executable(${TEST_EXECUTABLE}
         src/sorted_vector.h
         tests/sorted_vector_int_test.cpp
-        tests/sorted_vector_unit_tests.cpp)
+        tests/sorted_vector_unit_tests.cpp
+        tests/sorted_vector_int_pair_test.cpp
+        tests/sorted_vector_int_str_pair_test.cpp)
 
 target_link_libraries(${TEST_EXECUTABLE} gtest_main)
 target_link_libraries(${TEST_EXECUTABLE} gmock_main)

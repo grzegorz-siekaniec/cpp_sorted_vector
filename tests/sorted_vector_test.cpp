@@ -11,61 +11,6 @@
 #include "../src/sorted_vector.h"
 #include <set>
 
-void test()
-{
-    sorted_vector<int> v;
-
-    v.insert(4);
-    v.insert(3);
-    v.insert(5);
-    v.insert(3);
-
-    for(auto & el: v)
-    {
-        std::cout << el << " ";
-    }
-
-    assert(v.contains(3));
-    assert(!v.contains(6));
-    auto itr = v.find(3);
-    assert(itr != v.end());
-    assert(*itr == 3);
-    assert(v.find(6) == v.end());
-
-    std::cout << "\n";
-
-    std::vector<int> a {1, 3, 4, 2, 4, 5, -1, 0, -1};
-    std::vector<int> unique_a {-1, 0, 1, 2, 3, 4, 5, };
-    sorted_vector<int> sorted_a(a.begin(), a.end());
-    assert(sorted_a.size() == unique_a.size());
-}
-
-void test_pair() {
-    sorted_vector<std::pair<int, int>> v;
-
-    v.insert({1, 1});
-    v.insert({3, 3});
-    v.insert({5, 5});
-    v.insert({3, 3});
-
-    for(auto & el: v)
-    {
-        std::cout << "(" << el.first << " " << el.second << ") ";
-    }
-
-    assert(v.contains({3, 3}));
-    assert(!v.contains({6, 6}));
-    auto itr = v.find({3, 3});
-    assert(itr != v.end());
-    //assert(*itr == {3, 3});
-    assert(v.find({6, 6}) == v.end());
-
-    auto v_copy1 = v;
-    assert(v_copy1 == v);
-
-    std::cout << "\n";
-}
-
 
 struct IntStringPair
 {
@@ -73,7 +18,7 @@ struct IntStringPair
     std::string string_repr_;
 };
 
-struct compare_my
+struct IntStringPairCmp
 {
     bool operator()(const IntStringPair &lhs, const IntStringPair &rhs) const
     {
@@ -121,7 +66,7 @@ void test_struct() {
                 IntStringPair{2, "two"},
         };
 
-        sorted_vector<IntStringPair, compare_my> sorted_a(a.begin(), a.end());
+        sorted_vector<IntStringPair, IntStringPairCmp> sorted_a(a.begin(), a.end());
         assert(sorted_a.size() == 4);
     }
 }
